@@ -1,25 +1,14 @@
 import React, { useState } from "react";
-import styled from "styled-components";
-import ReactDOM from "react-dom";
-
-import "./styles.css";
-
-const Active = styled.div`
-  font-weight: bold;
-`;
-
-const Done = styled.div`
-  text-decoration: line-through;
-`;
-
-const Total = styled.div`
-  padding-top: 10px;
-`;
+import "./App.css";
 
 interface Task {
   id: number;
   title: string;
   done: boolean;
+}
+
+interface Props {
+  initialTasks: Task[];
 }
 
 const someTasks: Task[] = [
@@ -28,7 +17,7 @@ const someTasks: Task[] = [
   { id: 2, title: "Get some sleep", done: true },
 ];
 
-const TasksFunction = (initialTasks: Task[]) => {
+const TasksFunction = ({ initialTasks }: Props) => {
   const [tasks, setTasks] = useState(initialTasks);
 
   const [newTaskName, setNewTaskName] = useState("");
@@ -39,24 +28,25 @@ const TasksFunction = (initialTasks: Task[]) => {
 
   return (
     <div>
-      <form
-        onSubmit={() => {
+      <input
+        type="text"
+        value={newTaskName}
+        onChange={(v) => setNewTaskName(v.target.value)}
+      />
+      <button
+        onClick={() => {
           newTask(newTaskName);
           setNewTaskName("");
         }}
       >
-        <label>
-          New Task:
-          <input type="text" value={newTaskName} onChange={setNewTaskName} />
-        </label>
-        <input type="submit" value="Add Task" />
-      </form>
-
+        Add Task
+      </button>
+      <h1>Active tasks</h1>
       {tasks
         .filter((t: Task) => !t.done)
         .map((t: Task) => (
           <div
-            className="Active"
+            style={{ fontWeight: "bold" }}
             onClick={() => {
               doneTask(t.id);
             }}
@@ -64,52 +54,23 @@ const TasksFunction = (initialTasks: Task[]) => {
             {t.title}
           </div>
         ))}
+      <h1>Done tasks:</h1>
       {tasks
         .filter((t: Task) => t.done)
-        .map((task) => (
-          <div className="Done">{task.title}</div>
+        .map((task: Task) => (
+          <div style={{ textDecoration: "line-through" }}>{task.title}</div>
         ))}
       <div className="Total">Total tasks: {tasks.length}</div>
     </div>
   );
 };
 
-// class Tasks extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       active: this.props.tasks.filter(task => !task.done),
-//       completed: this.props.tasks.filter(task => task.done),
-//       total: this.props.tasks.length
-//     };
-
-//     this.addTask = this.addTask.bind(this)
-//   }
-
-//   addTask() {
-//     this.props.tasks.push({ title: 'new task', done: false });
-//     this.state = {
-//       active: this.props.tasks.filter(task => !task.done),
-//       completed: this.props.tasks.filter(task => task.done),
-//       total: this.props.tasks.length
-//     };
-//     this.forceUpdate();
-//   }
-
-//   render() {
-//     return (
-//       <div>
-//         <button onClick={this.addTask}>Add Task</button>
-//         {this.state.active.map(task => <Active onClick={() => {
-//           this.setState({ completed: this.state.completed.concat(task) })
-//         }}>{task.title}</Active>)}
-//         {this.state.completed.map(task => <Done>{task.title}</Done>)}
-//         <Total>Total tasks: {this.state.total}</Total>
-//       </div>
-//     );
-//   }
-// }
-
-export default function App() {
-  return <TasksFunction {...someTasks} />;
+function App() {
+  return (
+    <div className="App">
+      <TasksFunction initialTasks={someTasks} />
+    </div>
+  );
 }
+
+export default App;
