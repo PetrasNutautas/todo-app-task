@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
+import { getAllTasks, postTasks } from "./services/TodoService";
 
 interface Task {
   id: number;
@@ -7,24 +8,32 @@ interface Task {
   done: boolean;
 }
 
-interface Props {
-  initialTasks: Task[];
-}
-
-const someTasks: Task[] = [
-  { id: 0, title: "Wash dishes", done: false },
-  { id: 1, title: "Read book", done: false },
-  { id: 2, title: "Get some sleep", done: true },
-];
-
-const TasksFunction = ({ initialTasks }: Props) => {
-  const [tasks, setTasks] = useState(initialTasks);
-
+const TasksFunction = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskName, setNewTaskName] = useState("");
-  const newTask = (title: string) =>
-    setTasks([...tasks, { id: tasks.length, title, done: false }]);
-  const doneTask = (id: number) =>
-    setTasks(tasks.map((t) => (t.id === id ? { ...t, done: true } : t)));
+  const [getTasks, setGetTasks] = useState(true);
+  const newTask = (title: string) => {
+    const newTasks = [...tasks, { id: tasks.length, title, done: false }];
+    setTasks(newTasks);
+    postTasks(newTasks);
+    setNewTaskName("");
+  };
+  const doneTask = (id: number) => {
+    const newTasks = tasks.map((t) => (t.id === id ? { ...t, done: true } : t));
+    setTasks(newTasks);
+    postTasks(newTasks);
+  };
+  const clear = () => {
+    setTasks([]);
+    postTasks([]);
+  };
+
+  useEffect(() => {
+    if (getTasks) {
+      getAllTasks().then((tasks) => setTasks(tasks));
+      setGetTasks(false);
+    }
+  }, [getTasks]);
 
   return (
     <div>
@@ -33,14 +42,7 @@ const TasksFunction = ({ initialTasks }: Props) => {
         value={newTaskName}
         onChange={(v) => setNewTaskName(v.target.value)}
       />
-      <button
-        onClick={() => {
-          newTask(newTaskName);
-          setNewTaskName("");
-        }}
-      >
-        Add Task
-      </button>
+      <button onClick={() => newTask(newTaskName)}>Add Task</button>
       <h1>Active tasks</h1>
       {tasks
         .filter((t: Task) => !t.done)
@@ -61,6 +63,7 @@ const TasksFunction = ({ initialTasks }: Props) => {
           <div style={{ textDecoration: "line-through" }}>{task.title}</div>
         ))}
       <div className="Total">Total tasks: {tasks.length}</div>
+      <button onClick={clear}>Clear</button>
     </div>
   );
 };
@@ -68,7 +71,7 @@ const TasksFunction = ({ initialTasks }: Props) => {
 function App() {
   return (
     <div className="App">
-      <TasksFunction initialTasks={someTasks} />
+      <TasksFunction />
     </div>
   );
 }
