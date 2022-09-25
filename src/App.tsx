@@ -10,8 +10,13 @@ interface Task {
 
 const TasksFunction = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+
+  const active = tasks.filter((t) => !t.done);
+  const completed = tasks.filter((t) => t.done);
+
   const [newTaskName, setNewTaskName] = useState("");
   const [getTasks, setGetTasks] = useState(true);
+
   const newTask = (title: string) => {
     const newTasks = [...tasks, { id: tasks.length, title, done: false }];
     setTasks(newTasks);
@@ -44,24 +49,20 @@ const TasksFunction = () => {
       />
       <button onClick={() => newTask(newTaskName)}>Add Task</button>
       <h1>Active tasks</h1>
-      {tasks
-        .filter((t: Task) => !t.done)
-        .map((t: Task) => (
-          <div
-            style={{ fontWeight: "bold" }}
-            onClick={() => {
-              doneTask(t.id);
-            }}
-          >
-            {t.title}
-          </div>
-        ))}
+      {active.map((t) => (
+        <div
+          style={{ fontWeight: "bold" }}
+          onClick={() => {
+            doneTask(t.id);
+          }}
+        >
+          {t.title}
+        </div>
+      ))}
       <h1>Done tasks:</h1>
-      {tasks
-        .filter((t: Task) => t.done)
-        .map((task: Task) => (
-          <div style={{ textDecoration: "line-through" }}>{task.title}</div>
-        ))}
+      {completed.map((task) => (
+        <div style={{ textDecoration: "line-through" }}>{task.title}</div>
+      ))}
       <div className="Total">Total tasks: {tasks.length}</div>
       <button onClick={clear}>Clear</button>
     </div>

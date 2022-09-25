@@ -4,13 +4,6 @@ const app = express(),
   bodyParser = require("body-parser");
 port = 80;
 
-// initial data
-let tasks = [
-  { id: 0, title: "Wash dishes", done: false },
-  { id: 1, title: "Read book", done: false },
-  { id: 2, title: "Get some sleep", done: true },
-];
-
 var admin = require("firebase-admin");
 var serviceAccount = require("./serviceAccountKey.json");
 admin.initializeApp({
@@ -21,6 +14,8 @@ let db = admin.firestore();
 let a = db.collection("tasks");
 
 let docRef = a.doc("data");
+
+let tasks = [];
 
 docRef
   .get()
